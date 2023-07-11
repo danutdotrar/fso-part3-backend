@@ -33,7 +33,7 @@ const date = new Date();
 
 app.get("/api/info", (request, response) => {
     response.send(
-        `<p>Phonebook has info for ${personsLength} people</p> <p>${date}</p>`
+        `<p>Phonebook has info for ${personsLength} people</p> <p>The date is:${date}</p>`
     );
 });
 
