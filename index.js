@@ -45,25 +45,18 @@ app.get("/api/info", (request, response) => {
 });
 
 app.get("/api/persons/:id", (request, response) => {
-    // const id = Number(request.params.id);
-    // const person = persons.find((person) => person.id === id);
-
-    // if (person) {
-    //     response.json(person);
-    // } else {
-    //     response.status(404).end();
-    // }
-
     Person.findById(request.params.id).then((note) => {
         response.json(note);
     });
 });
 
 app.delete("/api/persons/:id", (request, response) => {
-    const id = Number(request.params.id);
-    persons = persons.filter((person) => person.id !== id);
+    // const id = Number(request.params.id);
+    // persons = persons.filter((person) => person.id !== id);
 
-    response.status(204).end();
+    Person.findByIdAndRemove(request.params.id)
+        .then((result) => response.status(204).end())
+        .catch((error) => next(error));
 });
 
 const generateId = () => {
@@ -87,10 +80,9 @@ app.post("/api/persons", (request, response) => {
         });
     }
 
-    // const checkIfExists = persons
-    //     .map((person) => person.name)
-    //     .includes(body.name);
-
+    // const checkIfExists = Person.map((person) => person.name).includes(
+    //     body.name
+    // );
     // if (checkIfExists) {
     //     return response.status(400).json({ error: "the name already exists" });
     // }
@@ -102,10 +94,23 @@ app.post("/api/persons", (request, response) => {
 
     console.log(request.body);
 
+    person.save().then((savedPerson) => response.json(savedPerson));
+
     // persons = persons.concat(person);
     // response.json(person);
-    person.save().then((savedPerson) => response.json(savedPerson));
 });
+
+const errorHandling = (error, request, response, next) => {
+    console.log(error);
+
+    if (error.name === "CastError") {
+        return response.status(400).send({ error: "malformatted id" });
+    }
+
+    next(error);
+};
+
+app.use(errorHandling);
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
